@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Server Dashboard</title>
+<style>
+* { margin:0; padding:0; box-sizing: border-box; }
+body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    max-width: 1000px;
+    width: 100%;
+}
+.card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 25px;
+}
+.card h3 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    opacity: 0.7;
+}
+.value {
+    font-size: 48px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #00ff88, #00ccff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+</style>
+</head>
+<body>
+<div class="grid">
+    <div class="card"><h3>CPU Usage</h3><div class="value" id="cpu">--</div><div>%</div></div>
+    <div class="card"><h3>RAM Usage</h3><div class="value" id="ram">--</div><div>%</div></div>
+    <div class="card"><h3>Temperature</h3><div class="value" id="temp">--</div><div>C</div></div>
+    <div class="card"><h3>Uptime</h3><div class="value" id="uptime" style="font-size:32px">--</div></div>
+    <div class="card" style="grid-column: 1 / -1;"><h3>Disks</h3><div id="disks"></div></div>
+</div>
+
+<script>
+const ws = new WebSocket('ws://' + location.host);
+ws.onmessage = (e) => {
+    const d = JSON.parse(e.data);
+    cpu.textContent = d.cpu;
+    ram.textContent = d.ram;
+    temp.textContent = d.temp;
+    uptime.textContent = d.uptime;
+    disks.innerHTML = d.disk.map(d => 
+        '<div style="margin:5px;padding:5px;background:rgba(255,255,255,0.05);border-radius:5px"><strong>' + d.mount + '</strong> ' + d.size + ' - ' + d.used + '% used</div>'
+    ).join('');
+};
+</script>
+</body>
+</html>
